@@ -1,0 +1,528 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kitchen Quality AI | Secure Login</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-black: #080808;
+            --card-bg: #121212;
+            --gold: #FFD700;
+            --gold-dim: #b8860b;
+            --text-gray: #a0a0a0;
+            --glass: rgba(255, 215, 0, 0.05);
+            --success: #00ff88;
+            --warning: #ffcc00;
+            --critical: #ff4444;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+
+        body {
+            background-color: var(--bg-black);
+            color: white;
+            min-height: 100vh;
+        }
+
+        /* --- LOGIN PAGE STYLES --- */
+        #login-page {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: radial-gradient(circle at center, #1a1a1a 0%, #080808 100%);
+        }
+
+        .login-card {
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 24px;
+            border: 1px solid #222;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        .login-card .logo {
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .login-input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .login-input-group label {
+            display: block;
+            color: var(--text-gray);
+            font-size: 12px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .login-input-group input {
+            width: 100%;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            padding: 12px 15px;
+            border-radius: 8px;
+            color: white;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .login-input-group input:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.1);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--gold);
+            color: black;
+            border: none;
+            border-radius: 8px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 10px;
+        }
+
+        .login-btn:hover {
+            background: #fff;
+            transform: translateY(-2px);
+        }
+
+        #login-error {
+            color: var(--critical);
+            font-size: 14px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        /* --- DASHBOARD LAYOUT (HIDDEN BY DEFAULT) --- */
+        #dashboard-wrapper {
+            display: none; /* Hidden until login */
+            width: 100%;
+        }
+
+        /* Sidebar and Main styles remain exactly as you provided */
+        .sidebar {
+            width: 260px;
+            height: 100vh;
+            background: #000;
+            border-right: 1px solid #222;
+            padding: 30px 20px;
+            position: fixed;
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--gold);
+            margin-bottom: 50px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            letter-spacing: 1px;
+        }
+
+        .nav-link {
+            padding: 15px;
+            color: var(--text-gray);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-radius: 12px;
+            transition: var(--transition);
+            margin-bottom: 8px;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: var(--glass);
+            color: var(--gold);
+            box-shadow: inset 0 0 10px rgba(255, 215, 0, 0.1);
+        }
+
+        .main {
+            margin-left: 260px;
+            padding: 30px;
+            width: calc(100% - 260px);
+        }
+
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .time-box {
+            background: var(--card-bg);
+            padding: 10px 20px;
+            border-radius: 30px;
+            border: 1px solid #333;
+            color: var(--gold);
+            font-family: 'Courier New', monospace;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 20px;
+            border: 1px solid #222;
+            position: relative;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .card:hover { transform: translateY(-5px); border-color: var(--gold); }
+        .card h3 { color: var(--text-gray); font-size: 14px; margin-bottom: 10px; }
+        .card .val { font-size: 32px; font-weight: bold; margin-bottom: 10px; }
+        .card .indicator { height: 4px; width: 60px; border-radius: 2px; }
+
+        .chart-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .chart-box {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 20px;
+            border: 1px solid #222;
+        }
+
+        .chart-box h4 { color: var(--gold); margin-bottom: 20px; font-size: 18px; }
+
+        .control-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #1a1a1a;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+        }
+
+        #notif-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 2000;
+        }
+
+        .notif {
+            background: #222;
+            border-left: 5px solid var(--gold);
+            padding: 15px 25px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            animation: slideIn 0.5s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .gold-text { color: var(--gold); }
+    </style>
+</head>
+<body>
+
+    <!-- 1. LOGIN PAGE SECTION -->
+    <div id="login-page">
+        <div class="login-card">
+            <div class="logo">
+                <i class="fas fa-crown"></i> KITCHEN PRO
+            </div>
+            <h2 style="margin-bottom: 20px;">System Login</h2>
+            
+            <div class="login-input-group">
+                <label>Username</label>
+                <input type="text" id="username" placeholder="Enter username" autofocus>
+            </div>
+            
+            <div class="login-input-group">
+                <label>Access Token</label>
+                <input type="password" id="password" placeholder="Enter password">
+            </div>
+            
+            <button class="login-btn" onclick="handleLogin()">AUTHENTICATE</button>
+            <p id="login-error">Invalid credentials. Please try again.</p>
+            
+            <p style="color: var(--text-gray); font-size: 11px; margin-top: 25px;">
+                Secure AI Monitoring System v4.0
+            </p>
+        </div>
+    </div>
+
+    <!-- 2. DASHBOARD SECTION (Wrapped in a single container) -->
+    <div id="dashboard-wrapper">
+        <div id="notif-container"></div>
+
+        <nav class="sidebar">
+            <div class="logo">
+                <i class="fas fa-crown"></i> KITCHEN PRO
+            </div>
+            <a href="#" class="nav-link active"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="#" class="nav-link"><i class="fas fa-chart-pie"></i> Analytics</a>
+            <a href="#" class="nav-link"><i class="fas fa-sliders-h"></i> Control Center</a>
+            <a href="#" class="nav-link" onclick="logout()" style="margin-top: auto;"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </nav>
+
+        <main class="main">
+            <div class="top-nav">
+                <h2>Kitchen <span class="gold-text">AI Analytics</span></h2>
+                <div class="time-box" id="clock">00:00:00</div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="card">
+                    <h3>TEMPERATURE</h3>
+                    <div class="val" id="temp-val">24°C</div>
+                    <div class="indicator" id="temp-color" style="background: var(--success);"></div>
+                </div>
+                <div class="card">
+                    <h3>HUMIDITY</h3>
+                    <div class="val" id="hum-val">45%</div>
+                    <div class="indicator" id="hum-color" style="background: var(--success);"></div>
+                </div>
+                <div class="card">
+                    <h3>HYGIENE SCORE</h3>
+                    <div class="val" id="hyg-val">98%</div>
+                    <div class="indicator" style="background: var(--gold);"></div>
+                </div>
+                <div class="card">
+                    <h3>AIR QUALITY (AQI)</h3>
+                    <div class="val" id="aqi-val">12</div>
+                    <div class="indicator" id="aqi-color" style="background: var(--success);"></div>
+                </div>
+            </div>
+
+            <div class="chart-grid">
+                <div class="chart-box">
+                    <h4>Temperature Trend (Live)</h4>
+                    <canvas id="tempLineChart" height="150"></canvas>
+                </div>
+                <div class="chart-box">
+                    <h4>Safety Distribution</h4>
+                    <canvas id="hygPieChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-grid">
+                <div class="chart-box">
+                    <h4>System Health Radar</h4>
+                    <canvas id="healthRadarChart" height="200"></canvas>
+                </div>
+                <div class="chart-box">
+                    <h4>Control Panel</h4>
+                    <div class="control-item">
+                        <span>AI Monitoring</span>
+                        <input type="checkbox" checked>
+                    </div>
+                    <div class="control-item">
+                        <span>Temp Threshold</span>
+                        <input type="range" min="10" max="50" value="30">
+                    </div>
+                    <div class="control-item">
+                        <span>Kitchen Mode</span>
+                        <select style="background: #333; color: gold; border: none; padding: 5px;">
+                            <option>Normal</option>
+                            <option>Peak Hour</option>
+                            <option>Cleaning</option>
+                        </select>
+                    </div>
+                    <button onclick="exportData()" style="width: 100%; padding: 10px; background: var(--gold); border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 10px;">
+                        <i class="fas fa-download"></i> EXPORT REPORT
+                    </button>
+                </div>
+            </div>
+			<div class="chart-grid" style="grid-template-columns: 1fr 1fr; margin-top: 30px;">
+    
+    <div class="chart-box">
+        <h4 class="gold-text"><i class="fas fa-users"></i> Recent Visitors</h4>
+        <table style="width: 100%; color: #fff; font-size: 13px; border-collapse: collapse;">
+            <tr style="color: var(--gold); text-align: left; border-bottom: 1px solid #333;">
+                <th style="padding: 10px;">User</th>
+                <th style="padding: 10px;">Email</th>
+            </tr>
+            <?php while($v = $visitor_result->fetch_assoc()): ?>
+            <tr style="border-bottom: 1px solid #222;">
+                <td style="padding: 10px;"><?php echo htmlspecialchars($v['username']); ?></td>
+                <td style="padding: 10px; color: #888;"><?php echo htmlspecialchars($v['email']); ?></td>
+            </tr>
+            <?php endwhile; ?>
+        </table>
+    </div>
+
+    <div class="chart-box">
+        <h4 class="gold-text"><i class="fas fa-comment-dots"></i> User Feedback</h4>
+        <table style="width: 100%; color: #fff; font-size: 13px; border-collapse: collapse;">
+            <tr style="color: var(--gold); text-align: left; border-bottom: 1px solid #333;">
+                <th style="padding: 10px;">User</th>
+                <th style="padding: 10px;">Rating</th>
+                <th style="padding: 10px;">Comment</th>
+            </tr>
+            <?php while($f = $feedback_result->fetch_assoc()): ?>
+            <tr style="border-bottom: 1px solid #222;">
+                <td style="padding: 10px;"><?php echo htmlspecialchars($f['user_name']); ?></td>
+                <td style="padding: 10px; color: var(--gold);"><?php echo $f['rating']; ?>/5</td>
+                <td style="padding: 10px; color: #888; font-style: italic;">"<?php echo htmlspecialchars($f['comment']); ?>"</td>
+            </tr>
+            <?php endwhile; ?>
+        </table>
+    </div>
+
+</div>
+        </main>
+    </div>
+
+    <script>
+        // --- LOGIN LOGIC ---
+        function handleLogin() {
+            const user = document.getElementById('username').value;
+            const pass = document.getElementById('password').value;
+            const errorMsg = document.getElementById('login-error');
+
+            // Set your desired credentials here
+            if(user === "admin" && pass === "1234") {
+                document.getElementById('login-page').style.display = "none";
+                document.getElementById('dashboard-wrapper').style.display = "flex";
+                initializeCharts(); // Start charts after login
+                startUpdateLoop();  // Start data loop after login
+            } else {
+                errorMsg.style.display = "block";
+                setTimeout(() => errorMsg.style.display = "none", 3000);
+            }
+        }
+
+        function logout() {
+            location.reload(); // Simplest way to lock the app again
+        }
+
+        // --- DASHBOARD LOGIC (Your Original Scripts) ---
+        let tempChart, healthChart;
+        const historyData = { temp: [], labels: [] };
+        
+        function updateClock() {
+            if(document.getElementById('clock')) {
+                document.getElementById('clock').innerText = new Date().toLocaleTimeString();
+            }
+        }
+        setInterval(updateClock, 1000);
+
+        function showNotification(msg) {
+            const container = document.getElementById('notif-container');
+            if(!container) return;
+            const div = document.createElement('div');
+            div.className = 'notif';
+            div.innerHTML = `<i class="fas fa-bell gold-text"></i> ${msg}`;
+            container.appendChild(div);
+            setTimeout(() => div.remove(), 4000);
+        }
+
+        function initializeCharts() {
+            const ctxLine = document.getElementById('tempLineChart').getContext('2d');
+            tempChart = new Chart(ctxLine, {
+                type: 'line',
+                data: {
+                    labels: historyData.labels,
+                    datasets: [{
+                        label: 'Live Temp',
+                        borderColor: '#FFD700',
+                        backgroundColor: 'rgba(255, 215, 0, 0.1)',
+                        data: historyData.temp,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { grid: { color: '#222' } }, x: { grid: { display: false } } } }
+            });
+
+            const radarCtx = document.getElementById('healthRadarChart').getContext('2d');
+            healthChart = new Chart(radarCtx, {
+                type: 'radar',
+                data: {
+                    labels: ['Hygiene', 'Storage', 'Gas Level', 'Pest Control', 'Waste Mgmt'],
+                    datasets: [{
+                        data: [90, 85, 95, 80, 88],
+                        borderColor: '#FFD700',
+                        backgroundColor: 'rgba(255, 215, 0, 0.2)'
+                    }]
+                },
+                options: { plugins: { legend: { display: false } }, scales: { r: { grid: { color: '#444' }, angleLines: { color: '#444' }, pointLabels: { color: '#aaa' } } } }
+            });
+
+            const pieCtx = document.getElementById('hygPieChart').getContext('2d');
+            new Chart(pieCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Safe', 'Warning', 'Action Required'],
+                    datasets: [{
+                        data: [70, 20, 10],
+                        backgroundColor: ['#00ff88', '#FFD700', '#ff4444'],
+                        borderWidth: 0
+                    }]
+                },
+                options: { cutout: '80%', plugins: { legend: { position: 'bottom', labels: { color: '#fff' } } } }
+            });
+        }
+
+        function startUpdateLoop() {
+            setInterval(() => {
+                const t = (Math.random() * (30 - 20) + 20).toFixed(1);
+                const h = Math.floor(Math.random() * 60 + 30);
+                const a = Math.floor(Math.random() * 50);
+
+                document.getElementById('temp-val').innerText = t + '°C';
+                document.getElementById('hum-val').innerText = h + '%';
+                document.getElementById('aqi-val').innerText = a;
+
+                if (t > 28) {
+                    document.getElementById('temp-color').style.background = 'var(--critical)';
+                    showNotification("High Temperature Alert: " + t + "°C");
+                } else {
+                    document.getElementById('temp-color').style.background = 'var(--success)';
+                }
+
+                if (historyData.labels.length > 10) {
+                    historyData.labels.shift();
+                    historyData.temp.shift();
+                }
+                historyData.labels.push(new Date().toLocaleTimeString([], { second: '2-digit' }));
+                historyData.temp.push(t);
+                tempChart.update('none');
+            }, 2000);
+        }
+
+        function exportData() {
+            alert("Generating PDF Report... Please wait.");
+            showNotification("Report downloaded successfully!");
+        }
+    </script>
+</body>
+</html>

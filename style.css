@@ -1,0 +1,6 @@
+body{background:#0f172a;color:white;font-family:Arial;margin:0}
+h1{text-align:center;padding:20px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;padding:20px}
+.card{background:#1e293b;padding:20px;border-radius:10px;text-align:center}
+canvas{margin:20px;background:#1e293b;border-radius:10px}
+.top-bar{text-align:center;font-size:20px}
